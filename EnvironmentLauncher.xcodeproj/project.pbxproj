@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B0545A40282DAD50002FEEA7 /* schoolmint-logo.png in Resources */ = {isa = PBXBuildFile; fileRef = B0545A3F282DAD50002FEEA7 /* schoolmint-logo.png */; };
 		B06313AC282B02F200D774F1 /* EnvironmentLauncherApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06313AB282B02F200D774F1 /* EnvironmentLauncherApp.swift */; };
 		B06313AE282B02F200D774F1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06313AD282B02F200D774F1 /* ContentView.swift */; };
 		B06313B0282B02F400D774F1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B06313AF282B02F400D774F1 /* Assets.xcassets */; };
@@ -34,6 +35,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B0545A3F282DAD50002FEEA7 /* schoolmint-logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "schoolmint-logo.png"; sourceTree = "<group>"; };
 		B06313A8282B02F200D774F1 /* EnvironmentLauncher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EnvironmentLauncher.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B06313AB282B02F200D774F1 /* EnvironmentLauncherApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentLauncherApp.swift; sourceTree = "<group>"; };
 		B06313AD282B02F200D774F1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -97,6 +99,7 @@
 			children = (
 				B06313AB282B02F200D774F1 /* EnvironmentLauncherApp.swift */,
 				B06313AD282B02F200D774F1 /* ContentView.swift */,
+				B0545A3F282DAD50002FEEA7 /* schoolmint-logo.png */,
 				B06313AF282B02F400D774F1 /* Assets.xcassets */,
 				B06313B4282B02F400D774F1 /* EnvironmentLauncher.entitlements */,
 				B06313B1282B02F400D774F1 /* Preview Content */,
@@ -145,6 +148,8 @@
 			dependencies = (
 			);
 			name = EnvironmentLauncher;
+			packageProductDependencies = (
+			);
 			productName = EnvironmentLauncher;
 			productReference = B06313A8282B02F200D774F1 /* EnvironmentLauncher.app */;
 			productType = "com.apple.product-type.application";
@@ -217,6 +222,8 @@
 				Base,
 			);
 			mainGroup = B063139F282B02F200D774F1;
+			packageReferences = (
+			);
 			productRefGroup = B06313A9282B02F200D774F1 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -235,6 +242,7 @@
 			files = (
 				B06313B3282B02F400D774F1 /* Preview Assets.xcassets in Resources */,
 				B06313B0282B02F400D774F1 /* Assets.xcassets in Resources */,
+				B0545A40282DAD50002FEEA7 /* schoolmint-logo.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -330,9 +338,11 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -347,6 +357,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -390,9 +401,11 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -401,6 +414,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -421,6 +435,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"EnvironmentLauncher/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -446,6 +461,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"EnvironmentLauncher/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -465,6 +481,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -483,6 +500,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
