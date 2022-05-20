@@ -81,6 +81,7 @@
 				B06313BC282B02F500D774F1 /* EnvironmentLauncherTests */,
 				B06313C6282B02F500D774F1 /* EnvironmentLauncherUITests */,
 				B06313A9282B02F200D774F1 /* Products */,
+				B0AF089D282EF3DE0099B277 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -130,6 +131,13 @@
 				B06313C9282B02F500D774F1 /* EnvironmentLauncherUITestsLaunchTests.swift */,
 			);
 			path = EnvironmentLauncherUITests;
+			sourceTree = "<group>";
+		};
+		B0AF089D282EF3DE0099B277 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -437,6 +445,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -463,6 +472,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
