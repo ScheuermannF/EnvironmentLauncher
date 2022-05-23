@@ -114,38 +114,21 @@ struct ContentView: View  {
 
         task.standardOutput = outputPipe
         task.standardError = outputPipe
-        
-        /*
-        
-        let outHandle = outputPipe.fileHandleForReading
 
-        
-        outHandle.readabilityHandler = { pipe in
-            if let line = String(data: pipe.availableData, encoding: .utf8) {
-                // Define the placeholder as public, otherwise the Console obfuscate it
-                if(!(line == "")){
-                    os_log("%{public}@", line)
-                }
-            }
-        }
-         */
-        
-        //2.
         outputPipe.fileHandleForReading.waitForDataInBackgroundAndNotify()
         
-        //3.
         NotificationCenter.default.addObserver(forName: NSNotification.Name.NSFileHandleDataAvailable, object: outputPipe.fileHandleForReading , queue: nil) {
             notification in
             
-            //4.
             let output = self.outputPipe.fileHandleForReading.availableData
             let outputString = String(data: output, encoding: String.Encoding.utf8) ?? ""
             
-            logger.log("\(outputString, privacy: .public)")
-            //5.
             DispatchQueue.main.async(execute: {
-                self.output = $output.wrappedValue + "\n" + outputString
+                let previousOutput = $output.wrappedValue
+                let nextOutput = previousOutput + "\n" + outputString
+                self.output = nextOutput
             })
+            
             /*
              DispatchQueue.global(qos: .background).async(execute: {
              let previousOutput = $output.wrappedValue
@@ -157,10 +140,6 @@ struct ContentView: View  {
             
             //6.
             self.outputPipe.fileHandleForReading.waitForDataInBackgroundAndNotify()
-            //if(!nextGenRunning && !laravelRunning && !legacyRunning) {
-            //   self.outputPipe.fileHandleForReading.waitForDataInBackgroundAndNotify()
-            //self.outputPipe.fileHandleForReading.readInBackgroundAndNotify()
-            //}
             
         }
         
@@ -225,7 +204,6 @@ struct ContentView: View  {
                             }
                             
                             nextGenRunning = true
-                            self.output = $output.wrappedValue + "\n."
 
                         }
                         
@@ -421,18 +399,6 @@ struct ContentView: View  {
                 )
                 .padding()
                 .id("verbose")
-            /*
-             TextField(
-             $output.wrappedValue,
-             text:$output
-             )
-             .textFieldStyle(PlainTextFieldStyle())
-             .padding([.horizontal], 4)
-             .cornerRadius(16)
-             .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.gray, lineWidth: 2))
-             .padding([.horizontal], 1)
-             */
-            
         }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top).padding()
         
     }
