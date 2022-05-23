@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import os
 
 struct ContentView: View  {
     
@@ -18,6 +19,8 @@ struct ContentView: View  {
     @State var holder = false;
     
     @State var outputPipe : Pipe!
+    
+    let logger = Logger(subsystem: "TSE.EnvironmentLauncher", category: "Error")
     
     @AppStorage("laravel") private var laravel : String = "/Users/francisscheuermann/GitHub/smartchoice-docker/"
     @AppStorage("legacy_fe") private var legacy_fe : String = "/Users/francisscheuermann/GitHub/schoolmint-fe/"
@@ -33,14 +36,16 @@ struct ContentView: View  {
     
     func dockerToggle(_ command: [String], _ running: Bool) -> Bool {
         let task = Process()
-        let pipe = Pipe()
-        
-        task.standardError = pipe
-        task.standardOutput = pipe
+        var env = ProcessInfo.processInfo.environment
+        var path = env["PATH"]! as String
+        path = "/usr/local/bin:" + path
+        env["PATH"] = path
+        task.environment = env
+
         task.arguments = command
         task.executableURL = URL(fileURLWithPath: "/usr/local/bin/docker" )
         
-        captureStandardOutputAndRouteToTextView(pipe)
+        captureStandardOutputAndRouteToTextView(task)
         
         
         do {
@@ -55,16 +60,18 @@ struct ContentView: View  {
         return true
     }
     
-    func shell(_ command: [String], _ running: Bool) -> Bool {
+    func startYarn(_ command: [String], _ running: Bool) -> Bool {
         let task = Process()
-        let pipe = Pipe()
-        
-        task.standardOutput = pipe
-        task.standardError = pipe
+        var env = ProcessInfo.processInfo.environment
+        var path = env["PATH"]! as String
+        path = "/usr/local/bin:" + path
+        env["PATH"] = path
+        task.environment = env
+
         task.arguments = command
-        task.executableURL = URL(fileURLWithPath: "/bin/zsh")
+        task.executableURL = URL(fileURLWithPath: "/usr/local/bin/yarn")
         
-        captureStandardOutputAndRouteToTextView(pipe)
+        captureStandardOutputAndRouteToTextView(task)
         
         do {
             try task.run()
@@ -76,12 +83,52 @@ struct ContentView: View  {
         return true
     }
     
-    func captureStandardOutputAndRouteToTextView(_ outputPipe: Pipe) {
+    func shell(_ command: [String], _ running: Bool) -> Bool {
+        let task = Process()
+        var env = ProcessInfo.processInfo.environment
+        var path = env["PATH"]! as String
+        path = "/usr/local/bin:" + path
+        env["PATH"] = path
+        task.environment = env
+
+        task.arguments = command
+        task.executableURL = URL(fileURLWithPath: "/bin/zsh")
+        
+        captureStandardOutputAndRouteToTextView(task)
+        
+        do {
+            try task.run()
+        } catch {
+            print("\(error)")
+            return false
+        }
+        
+        return true
+    }
+    
+    func captureStandardOutputAndRouteToTextView(_ task: Process) {
         //1.
-        //outputPipe = Pipe()
+        outputPipe = Pipe()
         setvbuf(stdout, nil, _IONBF, 0)
-        //task.standardOutput = outputPipe
-        //task.standardError = outputPipe
+        //logger.log("Initializing output function...")
+
+        task.standardOutput = outputPipe
+        task.standardError = outputPipe
+        
+        /*
+        
+        let outHandle = outputPipe.fileHandleForReading
+
+        
+        outHandle.readabilityHandler = { pipe in
+            if let line = String(data: pipe.availableData, encoding: .utf8) {
+                // Define the placeholder as public, otherwise the Console obfuscate it
+                if(!(line == "")){
+                    os_log("%{public}@", line)
+                }
+            }
+        }
+         */
         
         //2.
         outputPipe.fileHandleForReading.waitForDataInBackgroundAndNotify()
@@ -94,6 +141,7 @@ struct ContentView: View  {
             let output = self.outputPipe.fileHandleForReading.availableData
             let outputString = String(data: output, encoding: String.Encoding.utf8) ?? ""
             
+            logger.log("\(outputString, privacy: .public)")
             //5.
             DispatchQueue.main.async(execute: {
                 self.output = $output.wrappedValue + "\n" + outputString
@@ -164,7 +212,7 @@ struct ContentView: View  {
                             
                             self.output = $output.wrappedValue + "\n'yarn start'"
                             
-                            holder = shell(["-c", "cd " + nextgen_fe + " && BROWSER=none yarn start"], isRunning)
+                            holder = startYarn(["--cwd", nextgen_fe, "start"], isRunning)
                             
                             sleep(2)
                             
@@ -177,6 +225,8 @@ struct ContentView: View  {
                             }
                             
                             nextGenRunning = true
+                            self.output = $output.wrappedValue + "\n."
+
                         }
                         
                     } else {
@@ -188,7 +238,7 @@ struct ContentView: View  {
                             
                             holder = dockerToggle(["compose" ,"-f", (nextgen_be + "docker-compose.yml"), "down"], isRunning)
                             
-                            sleep(2)
+                            sleep(4)
                             
                             if(holder) {
                                 self.output = $output.wrappedValue + "\nDocker compose down successful."
