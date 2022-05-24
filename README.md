@@ -8,6 +8,9 @@ This is a WIP and you might encounter some bugs. If so, please leave a thread he
 
 * This app will only work if your 3 environments are already set up, prior to use (NextGen, Smartchoice, Schoolmint Legacy).
 
+### Known Bugs
+* Sometimes (even after supposedly fixing it) the CPU utlization will be high, but I'm looking into this. After starting OR stopping an environment, it will spike for a minute or so as it's doing tasks in the background, but SHOULD settle back to around 0% once it's done. Sometimes it doesn't settle, for a currently unknown reason.
+
 
 ### Setup / Installation
 
