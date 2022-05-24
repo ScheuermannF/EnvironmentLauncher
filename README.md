@@ -1,5 +1,6 @@
 # EnvironmentLauncher
 A simple GUI for starting/stopping SchoolMint's various local development environments
+<img width="1012" alt="Screen Shot 2022-05-24 at 3 42 43 PM" src="https://user-images.githubusercontent.com/84396585/170137724-0586f28b-de4c-407e-bd95-d6f74d5a4a6e.png">
 
 
 
