@@ -11,7 +11,7 @@ This is a WIP and you might encounter some bugs. If so, please leave a thread he
 
 ### Setup / Installation
 
-Since Apple is annoying about signing apps, I reccomend you clone the repo yourself and open the project in Xcode to build, compile, and archive it yourself for personal use. Below are the instructions for doing so:
+Since Apple is annoying about signing apps, I reccomend you clone the repo yourself and open the project in Xcode to build, compile, and export it yourself for personal use. Below are the instructions for doing so:
 
 #### 1. Cloning the repo
 This one is pretty self explanatory. I suggest using GitKraken or some other Git tool to clone the repo. It doesn't make a difference where, just make a note of where.
@@ -25,7 +25,8 @@ Once you have Xcode installed, open it, and you should be greeted with a screen 
 
 
 #### 3. Building and testing
-Now that the project is open you have access to all the files. I suggest testing the project here first before exporting(archiving) it to a '.app'.
+Now that the project is open you have access to all the files. I suggest testing the project here first before exporting it to a '.app'.
+The app NEEDS to be built here but testing is optional, but reccomended. It is built automatically upon running!
 
 * Clean the build folder with `Shift + Command + K` OR by selecting 'Clean Build Folder' in the taskbar in Product > Clean Build Folder
   * This is NOT necessary but can help if the project is failing to build
@@ -37,30 +38,17 @@ Now that the project is open you have access to all the files. I suggest testing
 
 * Now, press 'Start <environment>' for the environment you want to run. You can monitor the output while testing in the bottom right output section.
   
-* If it works, great! You can continue to the Archiving section to export the project to a '.app'
+* If it works, great! You can continue to the next section to export the project to a '.app'
   * If it didn't work.. sorry I'm new to Mac App development. Skip to the Common Problems / Solutions section.
   
 
-#### 4. Archiving the app
+#### 4. Exporting the app
 If you made it here, awesome. That means its working.
 
-* To archive the app for usage outside of Xcode, simply select 'Archive' in the Product menu.
-* This will take a moment, but once done, it will open a window showing you your archives of this project. You should only have one.
-* Select the archive and then press 'Distribute App' (The big blue button on the right)
-* Select 'Copy App' and press Next
-* Choose a location to save the .app to and press Export.
-  
-#### 5. Setting Permissions
-Great, now you have a .app archive of this application, you can move the .app anywhere you like (Applications folder if you want to keep it in your dock)
-Now we need to make sure the app has permissions that it might need.
-  
-* Open you Mac's System Preferences and navigate to Security & Privacy
-* Navigate to the Privacy tab and find the 'Full Disk Acess' entry
-* Click the lock in the bottom left and enter your Mac's password, then press the '+' button below the list of apps to the right
-* Point it to your EnvironmentLauncher.app and make sure once it's added, the blue checkmark is there
-* Click the lock again to re-lock your settings and then you should be good to go!
-  
-Enjoy using this app!
+* To export the app for usage outside of Xcode, simply drag the app from the 'products' folder to desired location.
+<img width="529" alt="Screen Shot 2022-05-24 at 3 17 59 PM" src="https://user-images.githubusercontent.com/84396585/170124764-ef79de9a-38f7-4544-875e-dae25addfde2.png">
+
+Enjoy using the app!
   
 ##### 5. Common Problems & Solutions
 In this section, you'll find some common problems I found when trying to get the app to work. Check here for possible solutions.
@@ -68,6 +56,8 @@ If none of these fix your problem, reach out to me via Slack at @Francis Scheuer
   
 * Make sure to use FULL path to the repo folders. For example, my environment repos are in my user directory inside of a folder called GitHub so my paths are `/Users/francisscheuermann/GitHub/<repo>`, the ~/ shortcut does not work.
 
-* This app currently assumes the yarn and docker directories are in `/usr/local/bin` because this is the default location for these, if for whatever reason it's different, you can edit the $PATH variable in the Xcode project by navigating to Product > Schemes > edit schemes and create a new environment variable as shown in the photo below:
-<img width="949" alt="Screen Shot 2022-05-17 at 9 23 35 PM" src="https://user-images.githubusercontent.com/84396585/168944319-9bd92544-0c78-4ce1-bbea-a07b183efe76.png">
+* This app currently assumes the yarn and docker directories are in `/usr/local/bin` because this is the default location for these, if for whatever reason it's different, you can edit the environment variable in the code to point to the correct location as shown here:
+<img width="895" alt="Screen Shot 2022-05-24 at 3 21 45 PM" src="https://user-images.githubusercontent.com/84396585/170125298-3e2ac51d-96ac-42f4-99ca-a8416533b58e.png">
+ 
+* This line needs to be changed in 3 different places, each of the 3 functions has it! (Currently, lines 46, 94, and 139)
 
