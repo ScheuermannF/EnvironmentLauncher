@@ -22,32 +22,36 @@ struct ContentView: View  {
     
     let logger = Logger(subsystem: "TSE.EnvironmentLauncher", category: "Error")
     
-    @AppStorage("laravel") private var laravel : String = "/Users/francisscheuermann/GitHub/smartchoice-docker/"
-    @AppStorage("legacy_fe") private var legacy_fe : String = "/Users/francisscheuermann/GitHub/schoolmint-fe/"
-    @AppStorage("legacy_be") private var legacy_be : String = "/Users/francisscheuermann/GitHub/schoolmint-be/"
-    @AppStorage("school_chooser") private var school_chooser : String = "/Users/francisscheuermann/GitHub/school-chooser/"
-    @AppStorage("chooser_editor") private var chooser_editor : String = "/Users/francisscheuermann/GitHub/chooser-editor/"
-    @AppStorage("nextgen_fe") private var nextgen_fe : String = "/Users/francisscheuermann/GitHub/enrollment-fe/"
-    @AppStorage("nextgen_be") private var nextgen_be : String = "/Users/francisscheuermann/GitHub/enrollment-be/"
+    @AppStorage("laravel") private var laravel : String = "/Users/<username>/.../smartchoice-docker/"
+    @AppStorage("legacy_fe") private var legacy_fe : String = "/Users/<username>/.../schoolmint-fe/"
+    @AppStorage("legacy_be") private var legacy_be : String = "/Users/<username>/.../schoolmint-be/"
+    @AppStorage("school_chooser") private var school_chooser : String = "/Users/<username>/.../school-chooser/"
+    @AppStorage("chooser_editor") private var chooser_editor : String = "/Users/<username>/.../chooser-editor/"
+    @AppStorage("nextgen_fe") private var nextgen_fe : String = "/Users/<username>/.../enrollment-fe/"
+    @AppStorage("nextgen_be") private var nextgen_be : String = "/Users/<username>/.../enrollment-be/"
     
     let dispatchQueue = DispatchQueue(label: "envLauncher.queue")
     
     
     
     func dockerToggle(_ command: [String], _ running: Bool) -> Bool {
+        // Initialize process and output pipe
         let task = Process()
+        let outputPipe = Pipe()
+        task.standardOutput = outputPipe
+        
+        // Append docker/yarn path to environment and re-set environment
         var env = ProcessInfo.processInfo.environment
         var path = env["PATH"]! as String
         path = "/usr/local/bin:" + path
         env["PATH"] = path
         task.environment = env
 
+        // Set task arguments and start location
         task.arguments = command
         task.executableURL = URL(fileURLWithPath: "/usr/local/bin/docker" )
         
-        captureStandardOutputAndRouteToTextView(task)
-        
-        
+        // Run task
         do {
             try task.run()
         } catch {
@@ -55,47 +59,92 @@ struct ContentView: View  {
             return false
         }
         
+        // Set isRunning to disable other buttons
         isRunning = !running
+        
+        // Capture output and redirect to view
+        let outputHandle = outputPipe.fileHandleForReading
+
+        outputHandle.readabilityHandler = { pipe in
+                    if let ouput = String(data: pipe.availableData, encoding: .utf8) {
+                        if !ouput.isEmpty {
+                            if(output.starts(with: "Done in ")){
+                                return
+                            }
+                            self.output += "\n" + ouput
+                            print("----> ouput: \(ouput)")
+                        }
+                    } else {
+                        print("Error decoding data: \(pipe.availableData)")
+                    }
+        }
         
         return true
     }
     
     func startYarn(_ command: [String], _ running: Bool) -> Bool {
+        // Initialize process and output pipe
         let task = Process()
+        let outputPipe = Pipe()
+        task.standardOutput = outputPipe
+        
+        // Append docker/yarn path to environment and re-set environment
         var env = ProcessInfo.processInfo.environment
         var path = env["PATH"]! as String
         path = "/usr/local/bin:" + path
         env["PATH"] = path
         task.environment = env
-
+        
+        // Set task arguments and start location
         task.arguments = command
         task.executableURL = URL(fileURLWithPath: "/usr/local/bin/yarn")
         
-        captureStandardOutputAndRouteToTextView(task)
-        
+        // Run task
         do {
             try task.run()
         } catch {
             print("\(error)")
             return false
+        }
+        
+        // Capture output and redirect to view
+        let outputHandle = outputPipe.fileHandleForReading
+
+        outputHandle.readabilityHandler = { pipe in
+                    if let ouput = String(data: pipe.availableData, encoding: .utf8) {
+                        if !ouput.isEmpty {
+                            if(output.starts(with: "Done in ")){
+                                return
+                            }
+                            self.output += "\n" + ouput
+                            print("----> ouput: \(ouput)")
+                        }
+                    } else {
+                        print("Error decoding data: \(pipe.availableData)")
+                    }
         }
         
         return true
     }
     
     func shell(_ command: [String], _ running: Bool) -> Bool {
+        // Initialize process and output pipe
         let task = Process()
         var env = ProcessInfo.processInfo.environment
+        let outputPipe = Pipe()
+        task.standardOutput = outputPipe
+
+        // Append docker/yarn path to environment and re-set environment
         var path = env["PATH"]! as String
         path = "/usr/local/bin:" + path
         env["PATH"] = path
         task.environment = env
 
+        // Set task arguments and start location
         task.arguments = command
         task.executableURL = URL(fileURLWithPath: "/bin/zsh")
         
-        captureStandardOutputAndRouteToTextView(task)
-        
+        // Run task
         do {
             try task.run()
         } catch {
@@ -103,49 +152,25 @@ struct ContentView: View  {
             return false
         }
         
-        return true
-    }
-    
-    func captureStandardOutputAndRouteToTextView(_ task: Process) {
-        //1.
-        outputPipe = Pipe()
-        setvbuf(stdout, nil, _IONBF, 0)
-        //logger.log("Initializing output function...")
+        // Capture output and redirect to view
+        let outputHandle = outputPipe.fileHandleForReading
 
-        task.standardOutput = outputPipe
-        task.standardError = outputPipe
-
-        outputPipe.fileHandleForReading.waitForDataInBackgroundAndNotify()
-        
-        NotificationCenter.default.addObserver(forName: NSNotification.Name.NSFileHandleDataAvailable, object: outputPipe.fileHandleForReading , queue: nil) {
-            notification in
-            
-            let output = self.outputPipe.fileHandleForReading.availableData
-            let outputString = String(data: output, encoding: String.Encoding.utf8) ?? ""
-            
-            DispatchQueue.main.async(execute: {
-                let previousOutput = $output.wrappedValue
-                let nextOutput = previousOutput + "\n" + outputString
-                self.output = nextOutput
-            })
-            
-            /*
-             DispatchQueue.global(qos: .background).async(execute: {
-             let previousOutput = $output.wrappedValue
-             let nextOutput = previousOutput + "\n" + outputString
-             self.output = nextOutput
-             //self.output = nextOutput
-             })
-             */
-            
-            //6.
-            self.outputPipe.fileHandleForReading.waitForDataInBackgroundAndNotify()
-            
+        outputHandle.readabilityHandler = { pipe in
+                    if let ouput = String(data: pipe.availableData, encoding: .utf8) {
+                        if !ouput.isEmpty {
+                            if(output.starts(with: "Done in ")){
+                                return
+                            }
+                            self.output += "\n" + ouput
+                            print("----> ouput: \(ouput)")
+                        }
+                    } else {
+                        print("Error decoding data: \(pipe.availableData)")
+                    }
         }
         
-        
+        return true
     }
-    
     
     
     var body: some View {
@@ -178,12 +203,6 @@ struct ContentView: View  {
                             
                             sleep(2)
                             
-                            if(holder) {
-                                self.output = $output.wrappedValue + "\nDocker compose up successful."
-                            } else {
-                                self.output = $output.wrappedValue + "\nDocker compose failed...something went wrong."
-                            }
-                            
                         }
                         
                         dispatchQueue.async {
@@ -194,14 +213,6 @@ struct ContentView: View  {
                             holder = startYarn(["--cwd", nextgen_fe, "start"], isRunning)
                             
                             sleep(2)
-                            
-                            if(holder) {
-                                self.output = $output.wrappedValue + "\nyarn start successful."
-                                self.output = $output.wrappedValue + "\n\nEnvironment started. The site should be accessible shortly."
-                            } else {
-                                self.output = $output.wrappedValue + "\nyarn start failed...something went wrong."
-                                self.output = $output.wrappedValue + "\n\nEnvironment startup incomplete. The site may be not be accessible."
-                            }
                             
                             nextGenRunning = true
 
@@ -218,12 +229,6 @@ struct ContentView: View  {
                             
                             sleep(4)
                             
-                            if(holder) {
-                                self.output = $output.wrappedValue + "\nDocker compose down successful."
-                            } else {
-                                self.output = $output.wrappedValue + "\nDocker compose down failed...something went wrong."
-                            }
-                            
                         }
                         
                         dispatchQueue.async {
@@ -236,24 +241,17 @@ struct ContentView: View  {
                             sleep(2)
                             
                             nextGenRunning = false
-                            
-                            if(holder) {
-                                self.output = $output.wrappedValue + "\n\nEnvironment shutdown successfully."
-                            } else {
-                                self.output = $output.wrappedValue + "\n\nEnvironment shutdown completed, but might have not been successful.."
-                            }
-                            
                         }
                     }
                 }.disabled(laravelRunning || legacyRunning).frame(width: 150)
                 
                 VStack {
                     TextField(
-                        "t",
+                        "NextGen back-end directory",
                         text: $nextgen_be
                     )
                     TextField(
-                        "SC Laravel directory",
+                        "NextGen front-end directory",
                         text: $nextgen_fe
                     )
                 }
@@ -271,18 +269,6 @@ struct ContentView: View  {
                             
                             sleep(2)
                             
-                            if(holder) {
-                                self.output = $output.wrappedValue + "\nDocker compose up successful."
-                            } else {
-                                self.output = $output.wrappedValue + "\nDocker compose failed...something went wrong."
-                            }
-                            
-                            if(holder) {
-                                self.output = $output.wrappedValue + "\n\nEnvironment started. The site should be accessible shortly."
-                            } else {
-                                self.output = $output.wrappedValue + "\n\nEnvironment startup incomplete. The site may be not be accessible."
-                            }
-                            
                             laravelRunning = true
                             
                         }
@@ -297,19 +283,7 @@ struct ContentView: View  {
                             
                             sleep(2)
                             
-                            if(holder) {
-                                self.output = $output.wrappedValue + "\nDocker compose down successful."
-                            } else {
-                                self.output = $output.wrappedValue + "\nDocker compose down failed...something went wrong."
-                            }
-                            
                             laravelRunning = false
-                            
-                            if(holder) {
-                                self.output = $output.wrappedValue + "\n\nEnvironment shutdown successfully."
-                            } else {
-                                self.output = $output.wrappedValue + "\n\nEnvironment shutdown completed, but might have not been successful.."
-                            }
                         }
                     }
                     
@@ -317,7 +291,7 @@ struct ContentView: View  {
                 
                 VStack {
                     TextField(
-                        "t",
+                        "Laravel directory",
                         text: $laravel
                     )
                 }
@@ -335,18 +309,6 @@ struct ContentView: View  {
                             
                             sleep(2)
                             
-                            if(holder) {
-                                self.output = $output.wrappedValue + "\nDocker compose up successful."
-                            } else {
-                                self.output = $output.wrappedValue + "\nDocker compose failed...something went wrong."
-                            }
-                            
-                            if(holder) {
-                                self.output = $output.wrappedValue + "\n\nEnvironment started. The site should be accessible shortly."
-                            } else {
-                                self.output = $output.wrappedValue + "\n\nEnvironment startup incomplete. The site may be not be accessible."
-                            }
-                            
                             legacyRunning = true
                             
                         }
@@ -360,30 +322,18 @@ struct ContentView: View  {
                             holder = dockerToggle(["compose" ,"-f", (legacy_be + "docker-compose.yml"), "down"], isRunning)
                             
                             sleep(2)
-                            
-                            if(holder) {
-                                self.output = $output.wrappedValue + "\nDocker compose down successful."
-                            } else {
-                                self.output = $output.wrappedValue + "\nDocker compose down failed...something went wrong."
-                            }
-                            
+
                             legacyRunning = false
-                            
-                            if(holder) {
-                                self.output = $output.wrappedValue + "\n\nEnvironment shutdown successfully."
-                            } else {
-                                self.output = $output.wrappedValue + "\n\nEnvironment shutdown completed, but might have not been successful.."
-                            }
                         }
                     }
                 }.disabled(laravelRunning || nextGenRunning).frame(width: 150)
                 VStack {
                     TextField(
-                        "t",
+                        "SM Legacy back-end directory",
                         text: $legacy_be
                     )
                     TextField(
-                        "SC Laravel directory",
+                        "SM Legacy front-end directory",
                         text: $legacy_fe
                     )
                 }
@@ -395,7 +345,6 @@ struct ContentView: View  {
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(lineWidth: 1)
-                    //.foregroundColor(Color(.placeholderText))
                 )
                 .padding()
                 .id("verbose")
