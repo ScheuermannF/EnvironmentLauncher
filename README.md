@@ -7,7 +7,9 @@ A simple GUI for starting/stopping SchoolMint's various local development enviro
 ### Before you begin, some notes
 This is a WIP and you might encounter some bugs. If so, please leave a thread here on the GitHub repo or message me directly on slack at @Francis Scheuermann
 
-* This app will only work if your 3 environments are already set up, prior to use (NextGen, Smartchoice, Schoolmint Legacy).
+* This app will only work if your 3 environments are already set up, prior to use (NextGen, Smartchoice, Schoolmint Legacy). If you do not have one set up, just change the repo to be blank!
+
+* Notice for M1 users: You will most likely have to change your $PATH in the code before the app will function correctly. On lines 46, 96, 141, and 169 change `path = "/usr/local/bin:" + path` TO `path = "/usr/local/bin:/opt/homebrew/bin:" + path`. You will also need to change line 102 from `task.executableURL = URL(fileURLWithPath: "/usr/local/bin/yarn")` TO `task.executableURL = URL(fileURLWithPath: "/opt/homebrew/bin/yarn")`
 
 ### Known Bugs
 * Sometimes (even after supposedly fixing it) the CPU utlization will be high, but I'm looking into this. After starting OR stopping an environment, it will spike for a minute or so as it's doing tasks in the background, but SHOULD settle back to around 0% once it's done. Sometimes it doesn't settle, for a currently unknown reason.
@@ -63,5 +65,5 @@ If none of these fix your problem, reach out to me via Slack at @Francis Scheuer
 * This app currently assumes the yarn and docker directories are in `/usr/local/bin` because this is the default location for these, if for whatever reason it's different, you can edit the environment variable in the code to point to the correct location as shown here:
 <img width="895" alt="Screen Shot 2022-05-24 at 3 21 45 PM" src="https://user-images.githubusercontent.com/84396585/170125298-3e2ac51d-96ac-42f4-99ca-a8416533b58e.png">
  
-* This line needs to be changed in 3 different places, each of the 3 functions has it! (Currently, lines 46, 94, and 139)
+* This line needs to be changed in 4 different places, each of the 3 functions has it! (Currently, lines 46, 96, 141, and 169)
 
