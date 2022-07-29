@@ -68,7 +68,9 @@ struct ContentView: View  {
         outputHandle.readabilityHandler = { pipe in
                     if let ouput = String(data: pipe.availableData, encoding: .utf8) {
                         if !ouput.isEmpty {
-                            if(output.starts(with: "Done in ")){
+                            if(output.contains("NOTICE: ready to handle connections")){
+                                self.output += "\n" + ouput
+                                print("----> ouput: \(ouput)")
                                 return
                             }
                             self.output += "\n" + ouput
@@ -114,6 +116,8 @@ struct ContentView: View  {
                     if let ouput = String(data: pipe.availableData, encoding: .utf8) {
                         if !ouput.isEmpty {
                             if(output.starts(with: "Done in ")){
+                                self.output += "\n" + ouput
+                                print("----> ouput: \(ouput)")
                                 return
                             }
                             self.output += "\n" + ouput
@@ -128,11 +132,9 @@ struct ContentView: View  {
     }
     
     func shell(_ command: [String], _ running: Bool) -> Bool {
-        // Initialize process and output pipe
+        // Initialize process and environment
         let task = Process()
         var env = ProcessInfo.processInfo.environment
-        let outputPipe = Pipe()
-        task.standardOutput = outputPipe
 
         // Append docker/yarn path to environment and re-set environment
         var path = env["PATH"]! as String
@@ -152,6 +154,53 @@ struct ContentView: View  {
             return false
         }
         
+        return true
+    }
+    
+    func stopAll() -> Bool {
+        // Initialize process and output pipe
+        let task = Process()
+        var env = ProcessInfo.processInfo.environment
+        //let outputPipe = Pipe()
+        //task.standardOutput = outputPipe
+
+        // Append docker/yarn path to environment and re-set environment
+        var path = env["PATH"]! as String
+        path = "/usr/local/bin:" + path
+        env["PATH"] = path
+        task.environment = env
+
+        // Set task arguments and start location
+        var args = ["-c"]
+        var envsToDown = ["whoami "]
+        
+        if(nextgen_be != "")
+        {
+            envsToDown.append("&& cd \(nextgen_be) && docker compose down")
+        }
+        if(laravel != "")
+        {
+            envsToDown.append("&& cd \(laravel) && docker compose down")
+        }
+        if(legacy_be != "")
+        {
+            envsToDown.append("&& cd \(legacy_be) && docker compose down")
+        }
+        envsToDown.append("&& killall node")
+        //task.arguments = ["-c", "cd \(nextgen_be) && docker compose down && cd \(laravel) && docker compose down && cd \(legacy_be) && docker compose down && killall node"]
+        let toDown = envsToDown.joined()
+        args.append(toDown)
+        task.arguments = args
+        task.executableURL = URL(fileURLWithPath: "/bin/zsh")
+        
+        // Run task
+        do {
+            try task.run()
+        } catch {
+            print("\(error)")
+            return false
+        }
+        /*
         // Capture output and redirect to view
         let outputHandle = outputPipe.fileHandleForReading
 
@@ -168,7 +217,7 @@ struct ContentView: View  {
                         print("Error decoding data: \(pipe.availableData)")
                     }
         }
-        
+        */
         return true
     }
     
@@ -339,6 +388,41 @@ struct ContentView: View  {
                 }
             }.padding().frame(alignment: .center)
             
+            HStack {
+                Button("Stop All") {
+                    dispatchQueue.async {
+                        
+                        nextGenRunning = true
+                        laravelRunning = true
+                        legacyRunning = true
+                        
+                        self.output = "Stopping ALL environments..."
+                        
+                        dispatchQueue.async {
+                            holder = stopAll()
+                        }
+                        
+                        dispatchQueue.asyncAfter(deadline: .now() + 5) {
+                            nextGenRunning = false
+                            laravelRunning = false
+                            legacyRunning = false
+                            isRunning = false
+                            
+                            self.output = $output.wrappedValue + "\n\nEnvironments should be quitting. Please wait a moment before starting a new one."
+                        }
+                                                
+                        
+                        
+                        
+                    }
+                    
+                }.disabled(nextGenRunning && laravelRunning && legacyRunning)
+                /*
+                Button("Restart Current") {
+                    
+                }*/
+            }
+            
             
             TextEditor(text: .constant(output))
                 .padding(10)
@@ -348,6 +432,7 @@ struct ContentView: View  {
                 )
                 .padding()
                 .id("verbose")
+                .frame(minHeight: 200)
         }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top).padding()
         
     }
